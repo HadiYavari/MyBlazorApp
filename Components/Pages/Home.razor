@@ -1,0 +1,68 @@
+@page "/"
+
+<PageTitle>Calculator</PageTitle>
+
+<div class="calculator">
+    <h1>Calculator</h1>
+
+    <div class="input-row">
+        <input type="number" class="number-input" @bind="FirstNumber" @bind:event="oninput" placeholder="First number" />
+        <input type="number" class="number-input" @bind="SecondNumber" @bind:event="oninput" placeholder="Second number" />
+    </div>
+
+    <div class="operation-row">
+        <button class="op-button" @onclick="Add">+</button>
+        <button class="op-button" @onclick="Subtract">-</button>
+        <button class="op-button" @onclick="Multiply">*</button>
+        <button class="op-button" @onclick="Divide">/</button>
+    </div>
+
+    @if (Result is not null)
+    {
+        <div class="result">Result: @Result</div>
+    }
+    else if (ErrorMessage is not null)
+    {
+        <div class="error">@ErrorMessage</div>
+    }
+</div>
+
+@code {
+    private double FirstNumber;
+    private double SecondNumber;
+    private double? Result;
+    private string? ErrorMessage;
+
+    private void Add()
+    {
+        ShowResult(FirstNumber + SecondNumber);
+    }
+
+    private void Subtract()
+    {
+        ShowResult(FirstNumber - SecondNumber);
+    }
+
+    private void Multiply()
+    {
+        ShowResult(FirstNumber * SecondNumber);
+    }
+
+    private void Divide()
+    {
+        if (SecondNumber == 0)
+        {
+            Result = null;
+            ErrorMessage = "Cannot divide by zero.";
+            return;
+        }
+
+        ShowResult(FirstNumber / SecondNumber);
+    }
+
+    private void ShowResult(double value)
+    {
+        Result = value;
+        ErrorMessage = null;
+    }
+}
