@@ -1,5 +1,5 @@
 using MyBlazorApp.Components;
-using MyBlazorApp.Core;
+using MyBlazorApp.Core.Expressions;
 using MyBlazorApp.Services;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -8,8 +8,8 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
-builder.Services.AddSingleton<ICalculatorEngine, CalculatorEngine>();
-builder.Services.AddScoped<CalculatorStateService>();
+builder.Services.AddSingleton<IExpressionCalculatorEngine, ExpressionCalculatorEngine>();
+builder.Services.AddScoped<ScientificCalculatorStateService>();
 
 var app = builder.Build();
 

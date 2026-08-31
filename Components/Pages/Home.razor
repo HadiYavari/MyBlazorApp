@@ -1,33 +1,205 @@
 @page "/"
-@using MyBlazorApp.Core
+@using MyBlazorApp.Core.Expressions
 @using MyBlazorApp.Services
-@inject CalculatorStateService State
+@inject ScientificCalculatorStateService State
 
-<PageTitle>Calculator</PageTitle>
+<PageTitle>Scientific Calculator</PageTitle>
 
 <div class="calculator">
-    <h1>Calculator</h1>
+    <h1>Scientific Calculator</h1>
 
-    <div class="input-row">
-        <input type="number" class="number-input" @bind="State.FirstNumber" @bind:event="oninput" placeholder="First number" />
-        <input type="number" class="number-input" @bind="State.SecondNumber" @bind:event="oninput" placeholder="Second number" />
+    <div class="angle-row" role="group" aria-label="Angle unit">
+        <button class="mode-button @(State.AngleUnit == AngleUnit.Degrees ? "selected" : "")" @onclick='() => Click(() => State.SetAngleUnit(AngleUnit.Degrees))'>Deg</button>
+        <button class="mode-button @(State.AngleUnit == AngleUnit.Radians ? "selected" : "")" @onclick='() => Click(() => State.SetAngleUnit(AngleUnit.Radians))'>Rad</button>
+        <button class="mode-button @(State.AngleUnit == AngleUnit.Gradians ? "selected" : "")" @onclick='() => Click(() => State.SetAngleUnit(AngleUnit.Gradians))'>Grad</button>
+        <button class="mode-button @(_shift ? "selected" : "")" @onclick='() => Click(() => _shift = !_shift)'>SHIFT</button>
+        <button class="mode-button @(_hyp ? "selected" : "")" @onclick='() => Click(() => _hyp = !_hyp)'>HYP</button>
     </div>
 
-    <div class="operation-row">
-        <button class="op-button @(State.SelectedOperation == CalculatorOperation.Add ? "selected" : "")" @onclick="() => State.SelectOperation(CalculatorOperation.Add)">+</button>
-        <button class="op-button @(State.SelectedOperation == CalculatorOperation.Subtract ? "selected" : "")" @onclick="() => State.SelectOperation(CalculatorOperation.Subtract)">-</button>
-        <button class="op-button @(State.SelectedOperation == CalculatorOperation.Multiply ? "selected" : "")" @onclick="() => State.SelectOperation(CalculatorOperation.Multiply)">*</button>
-        <button class="op-button @(State.SelectedOperation == CalculatorOperation.Divide ? "selected" : "")" @onclick="() => State.SelectOperation(CalculatorOperation.Divide)">/</button>
+    <div class="display">
+        <input @ref="_expressionInputRef" class="expression-input" @bind="State.Expression" @bind:event="oninput" @onkeydown="HandleKeyDown"
+               aria-label="Expression" autofocus />
+    </div>
+    <div class="live-region" aria-live="polite">
+        @if (State.HasError)
+        {
+            @State.ErrorMessage
+        }
+        else if (State.Result is not null)
+        {
+            @($"Result: {State.Result}")
+        }
     </div>
 
-    <button class="equals-button" @onclick="State.Calculate">=</button>
-
-    @if (State.Result is not null)
-    {
-        <div class="result">Result: @State.Result</div>
-    }
-    else if (State.ErrorMessage is not null)
+    @if (State.HasError)
     {
         <div class="error">@State.ErrorMessage</div>
     }
+
+    <div class="key-row">
+        <button class="key-button" @onclick='() => Click(() => ClickTrig("sin"))'>@TrigLabel("sin")</button>
+        <button class="key-button" @onclick='() => Click(() => ClickTrig("cos"))'>@TrigLabel("cos")</button>
+        <button class="key-button" @onclick='() => Click(() => ClickTrig("tan"))'>@TrigLabel("tan")</button>
+        <button class="key-button" @onclick="() => Click(AppendLog)">@(_shift ? "10^" : "log")</button>
+        <button class="key-button" @onclick="() => Click(AppendLn)">@(_shift ? "e^" : "ln")</button>
+    </div>
+
+    <div class="key-row">
+        <button class="key-button" @onclick='() => Click(() => State.AppendPostfix("²"))'>x²</button>
+        <button class="key-button" @onclick='() => Click(() => State.AppendPostfix("³"))'>x³</button>
+        <button class="key-button" @onclick='() => Click(() => State.AppendOperator("^"))'>x^y</button>
+        <button class="key-button" @onclick='() => Click(() => State.AppendFunction("sqrt"))'>√</button>
+        <button class="key-button" @onclick='() => Click(() => State.AppendFunction("cbrt"))'>∛</button>
+    </div>
+
+    <div class="key-row">
+        <button class="key-button" @onclick='() => Click(() => State.AppendOperator("ʸ√"))'>ʸ√x</button>
+        <button class="key-button" @onclick='() => Click(() => State.AppendFunction("logy"))'>log<sub>y</sub></button>
+        <button class="key-button" @onclick='() => Click(() => State.AppendPostfix("!"))'>x!</button>
+        <button class="key-button" @onclick='() => Click(() => State.AppendPostfix("⁻¹"))'>x⁻¹</button>
+        <button class="key-button" @onclick='() => Click(() => State.AppendFunction("abs"))'>|x|</button>
+    </div>
+
+    <div class="key-row">
+        <button class="key-button" @onclick='() => Click(() => State.AppendConstant("π"))'>π</button>
+        <button class="key-button" @onclick='() => Click(() => State.AppendConstant("e"))'>e</button>
+        <button class="key-button" @onclick="() => Click(State.InsertRandomNumber)">Ran#</button>
+        <button class="key-button" @onclick='() => Click(() => State.AppendParen("("))'>(</button>
+        <button class="key-button" @onclick='() => Click(() => State.AppendParen(")"))'>)</button>
+    </div>
+
+    <div class="key-row">
+        <button class="key-button memory" @onclick="() => Click(State.MemoryClear)">MC</button>
+        <button class="key-button memory" @onclick="() => Click(State.MemoryRecall)">MR</button>
+        <button class="key-button memory" @onclick="() => Click(State.MemoryAdd)">M+</button>
+        <button class="key-button memory" @onclick="() => Click(State.MemorySubtract)">M-</button>
+        <button class="key-button memory" @onclick="() => Click(State.MemoryStore)">MS</button>
+    </div>
+
+    <div class="key-row">
+        <button class="key-button" @onclick='() => Click(() => State.AppendDigitOrDecimal("7"))'>7</button>
+        <button class="key-button" @onclick='() => Click(() => State.AppendDigitOrDecimal("8"))'>8</button>
+        <button class="key-button" @onclick='() => Click(() => State.AppendDigitOrDecimal("9"))'>9</button>
+        <button class="key-button op" @onclick='() => Click(() => State.AppendOperator("÷"))'>÷</button>
+        <button class="key-button" @onclick="() => Click(State.Backspace)" aria-label="Backspace">⌫</button>
+    </div>
+
+    <div class="key-row">
+        <button class="key-button" @onclick='() => Click(() => State.AppendDigitOrDecimal("4"))'>4</button>
+        <button class="key-button" @onclick='() => Click(() => State.AppendDigitOrDecimal("5"))'>5</button>
+        <button class="key-button" @onclick='() => Click(() => State.AppendDigitOrDecimal("6"))'>6</button>
+        <button class="key-button op" @onclick='() => Click(() => State.AppendOperator("×"))'>×</button>
+        <button class="key-button" @onclick='() => Click(() => State.AppendPostfix("%"))'>%</button>
+    </div>
+
+    <div class="key-row">
+        <button class="key-button" @onclick='() => Click(() => State.AppendDigitOrDecimal("1"))'>1</button>
+        <button class="key-button" @onclick='() => Click(() => State.AppendDigitOrDecimal("2"))'>2</button>
+        <button class="key-button" @onclick='() => Click(() => State.AppendDigitOrDecimal("3"))'>3</button>
+        <button class="key-button op" @onclick='() => Click(() => State.AppendOperator("-"))'>−</button>
+        <button class="key-button" @onclick="() => Click(State.ToggleSign)">+/−</button>
+    </div>
+
+    <div class="key-row">
+        <button class="key-button" @onclick='() => Click(() => State.AppendDigitOrDecimal("0"))'>0</button>
+        <button class="key-button" @onclick='() => Click(() => State.AppendDigitOrDecimal("."))'>.</button>
+        <button class="key-button" @onclick="() => Click(State.AppendComma)">,</button>
+        <button class="key-button op" @onclick='() => Click(() => State.AppendOperator("+"))'>+</button>
+        <button class="key-button clear" @onclick="() => Click(State.ClearEntry)">C</button>
+    </div>
+
+    <div class="key-row">
+        <button class="key-button clear" @onclick="() => Click(State.AllClear)">AC</button>
+        <button class="equals-button" @onclick="() => Click(State.Calculate)">=</button>
+    </div>
 </div>
+
+@code {
+    private ElementReference _expressionInputRef;
+    private bool _shift;
+    private bool _hyp;
+
+    private string TrigName(string baseName) => (_shift, _hyp) switch
+    {
+        (false, false) => baseName,
+        (false, true) => baseName + "h",
+        (true, false) => "a" + baseName,
+        (true, true) => "a" + baseName + "h"
+    };
+
+    private string TrigLabel(string baseName) => TrigName(baseName) switch
+    {
+        "sin" => "sin",
+        "cos" => "cos",
+        "tan" => "tan",
+        var name => name switch
+        {
+            "asin" => "sin⁻¹",
+            "acos" => "cos⁻¹",
+            "atan" => "tan⁻¹",
+            "sinh" => "sinh",
+            "cosh" => "cosh",
+            "tanh" => "tanh",
+            "asinh" => "sinh⁻¹",
+            "acosh" => "cosh⁻¹",
+            "atanh" => "tanh⁻¹",
+            _ => name
+        }
+    };
+
+    private void ClickTrig(string baseName)
+    {
+        State.AppendFunction(TrigName(baseName));
+        _shift = false;
+    }
+
+    private void AppendLog()
+    {
+        if (_shift)
+        {
+            State.AppendFunctionText("10^(");
+            _shift = false;
+        }
+        else
+        {
+            State.AppendFunction("log");
+        }
+    }
+
+    private void AppendLn()
+    {
+        if (_shift)
+        {
+            State.AppendFunctionText("e^(");
+            _shift = false;
+        }
+        else
+        {
+            State.AppendFunction("ln");
+        }
+    }
+
+    private void HandleKeyDown(Microsoft.AspNetCore.Components.Web.KeyboardEventArgs e)
+    {
+        switch (e.Key)
+        {
+            case "Enter":
+                State.Calculate();
+                break;
+            case "Escape":
+                State.AllClear();
+                break;
+        }
+    }
+
+    /// <summary>
+    /// Every keypad button routes through here so focus returns to the expression
+    /// input afterward - otherwise focus stays on the clicked button and further
+    /// keyboard typing wouldn't reach the expression at all.
+    /// </summary>
+    private async Task Click(Action action)
+    {
+        action();
+        await _expressionInputRef.FocusAsync();
+    }
+}

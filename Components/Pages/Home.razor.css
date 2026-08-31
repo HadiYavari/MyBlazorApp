@@ -1,7 +1,7 @@
 .calculator {
-    max-width: 360px;
-    margin: 4rem auto;
-    padding: 2rem;
+    max-width: 420px;
+    margin: 3rem auto;
+    padding: 1.5rem;
     background-color: #ffffff;
     border-radius: 12px;
     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
@@ -10,43 +10,79 @@
 
 .calculator h1 {
     margin-top: 0;
-    margin-bottom: 1.5rem;
-    font-size: 1.75rem;
+    margin-bottom: 1rem;
+    font-size: 1.5rem;
     color: #111827;
 }
 
-.input-row {
+.angle-row {
     display: flex;
-    gap: 0.75rem;
-    margin-bottom: 1rem;
+    gap: 0.4rem;
+    margin-bottom: 0.75rem;
 }
 
-.number-input {
+.mode-button {
     flex: 1;
-    width: 0;
-    padding: 0.6rem;
-    font-size: 1rem;
+    padding: 0.4rem;
+    font-size: 0.8rem;
+    font-weight: 600;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    background-color: #f9fafb;
+    color: #374151;
+    cursor: pointer;
+    transition: background-color 0.15s ease;
+}
+
+.mode-button:hover {
+    background-color: #f3f4f6;
+}
+
+.mode-button.selected {
+    background-color: #16a34a;
+    border-color: #16a34a;
+    color: white;
+}
+
+.display {
+    margin-bottom: 0.25rem;
+}
+
+.expression-input {
+    width: 100%;
+    padding: 0.75rem;
+    font-size: 1.4rem;
+    font-family: "Courier New", monospace;
     border: 1px solid #d1d5db;
     border-radius: 6px;
     box-sizing: border-box;
+    text-align: right;
 }
 
-.number-input:focus {
+.expression-input:focus {
     outline: none;
     border-color: #3b82f6;
     box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
 }
 
-.operation-row {
-    display: flex;
-    gap: 0.75rem;
-    margin-bottom: 1.5rem;
+.live-region {
+    min-height: 1.2rem;
+    margin-bottom: 0.75rem;
+    font-size: 0.85rem;
+    color: #6b7280;
+    text-align: right;
 }
 
-.op-button {
+.key-row {
+    display: flex;
+    gap: 0.4rem;
+    margin-bottom: 0.5rem;
+}
+
+.key-button {
     flex: 1;
-    padding: 0.6rem;
-    font-size: 1.2rem;
+    padding: 0.55rem 0.2rem;
+    font-size: 0.9rem;
     font-weight: 600;
     border: none;
     border-radius: 6px;
@@ -56,28 +92,42 @@
     transition: background-color 0.15s ease;
 }
 
-.op-button:hover {
+.key-button:hover {
     background-color: #2563eb;
 }
 
-.op-button:active {
+.key-button:active {
     background-color: #1d4ed8;
 }
 
-.op-button.selected {
-    background-color: #16a34a;
-    box-shadow: 0 0 0 3px rgba(22, 163, 74, 0.25);
+.key-button.op {
+    background-color: #1e3a8a;
 }
 
-.op-button.selected:hover {
-    background-color: #15803d;
+.key-button.op:hover {
+    background-color: #172554;
+}
+
+.key-button.memory {
+    background-color: #7c3aed;
+}
+
+.key-button.memory:hover {
+    background-color: #6d28d9;
+}
+
+.key-button.clear {
+    background-color: #ea580c;
+}
+
+.key-button.clear:hover {
+    background-color: #c2410c;
 }
 
 .equals-button {
-    width: 100%;
-    padding: 0.7rem;
-    margin-bottom: 1.5rem;
-    font-size: 1.3rem;
+    flex: 3;
+    padding: 0.55rem;
+    font-size: 1.1rem;
     font-weight: 700;
     border: none;
     border-radius: 6px;
@@ -95,20 +145,12 @@
     background-color: #dc2626;
 }
 
-.result {
-    padding: 0.75rem;
-    border-radius: 6px;
-    background-color: #ecfdf5;
-    font-size: 1.3rem;
-    font-weight: 700;
-    color: #16a34a;
-}
-
 .error {
-    padding: 0.75rem;
+    padding: 0.6rem;
+    margin-bottom: 0.75rem;
     border-radius: 6px;
     background-color: #fef2f2;
-    font-size: 1.05rem;
+    font-size: 0.95rem;
     font-weight: 600;
     color: #dc2626;
 }
