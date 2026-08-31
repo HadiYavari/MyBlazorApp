@@ -11,11 +11,13 @@
     </div>
 
     <div class="operation-row">
-        <button class="op-button" @onclick="Add">+</button>
-        <button class="op-button" @onclick="Subtract">-</button>
-        <button class="op-button" @onclick="Multiply">*</button>
-        <button class="op-button" @onclick="Divide">/</button>
+        <button class="op-button @(SelectedOperation == Operation.Add ? "selected" : "")" @onclick="() => SelectOperation(Operation.Add)">+</button>
+        <button class="op-button @(SelectedOperation == Operation.Subtract ? "selected" : "")" @onclick="() => SelectOperation(Operation.Subtract)">-</button>
+        <button class="op-button @(SelectedOperation == Operation.Multiply ? "selected" : "")" @onclick="() => SelectOperation(Operation.Multiply)">*</button>
+        <button class="op-button @(SelectedOperation == Operation.Divide ? "selected" : "")" @onclick="() => SelectOperation(Operation.Divide)">/</button>
     </div>
+
+    <button class="equals-button" @onclick="Calculate">=</button>
 
     @if (Result is not null)
     {
@@ -28,36 +30,50 @@
 </div>
 
 @code {
+    private enum Operation { None, Add, Subtract, Multiply, Divide }
+
     private double FirstNumber;
     private double SecondNumber;
+    private Operation SelectedOperation;
     private double? Result;
     private string? ErrorMessage;
 
-    private void Add()
+    private void SelectOperation(Operation operation)
     {
-        ShowResult(FirstNumber + SecondNumber);
+        SelectedOperation = operation;
+        Result = null;
+        ErrorMessage = null;
     }
 
-    private void Subtract()
+    private void Calculate()
     {
-        ShowResult(FirstNumber - SecondNumber);
-    }
-
-    private void Multiply()
-    {
-        ShowResult(FirstNumber * SecondNumber);
-    }
-
-    private void Divide()
-    {
-        if (SecondNumber == 0)
+        switch (SelectedOperation)
         {
-            Result = null;
-            ErrorMessage = "Cannot divide by zero.";
-            return;
+            case Operation.Add:
+                ShowResult(FirstNumber + SecondNumber);
+                break;
+            case Operation.Subtract:
+                ShowResult(FirstNumber - SecondNumber);
+                break;
+            case Operation.Multiply:
+                ShowResult(FirstNumber * SecondNumber);
+                break;
+            case Operation.Divide:
+                if (SecondNumber == 0)
+                {
+                    Result = null;
+                    ErrorMessage = "Cannot divide by zero.";
+                }
+                else
+                {
+                    ShowResult(FirstNumber / SecondNumber);
+                }
+                break;
+            default:
+                Result = null;
+                ErrorMessage = "Please choose an operation.";
+                break;
         }
-
-        ShowResult(FirstNumber / SecondNumber);
     }
 
     private void ShowResult(double value)

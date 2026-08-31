@@ -64,6 +64,37 @@
     background-color: #1d4ed8;
 }
 
+.op-button.selected {
+    background-color: #16a34a;
+    box-shadow: 0 0 0 3px rgba(22, 163, 74, 0.25);
+}
+
+.op-button.selected:hover {
+    background-color: #15803d;
+}
+
+.equals-button {
+    width: 100%;
+    padding: 0.7rem;
+    margin-bottom: 1.5rem;
+    font-size: 1.3rem;
+    font-weight: 700;
+    border: none;
+    border-radius: 6px;
+    background-color: #111827;
+    color: white;
+    cursor: pointer;
+    transition: background-color 0.15s ease;
+}
+
+.equals-button:hover {
+    background-color: #1f2937;
+}
+
+.equals-button:active {
+    background-color: #030712;
+}
+
 .result {
     padding: 0.75rem;
     border-radius: 6px;
