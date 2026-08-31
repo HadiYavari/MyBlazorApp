@@ -81,18 +81,18 @@
     font-weight: 700;
     border: none;
     border-radius: 6px;
-    background-color: #111827;
+    background-color: #f87171;
     color: white;
     cursor: pointer;
     transition: background-color 0.15s ease;
 }
 
 .equals-button:hover {
-    background-color: #1f2937;
+    background-color: #ef4444;
 }
 
 .equals-button:active {
-    background-color: #030712;
+    background-color: #dc2626;
 }
 
 .result {
