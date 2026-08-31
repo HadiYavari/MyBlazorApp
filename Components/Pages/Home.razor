@@ -1,4 +1,7 @@
 @page "/"
+@using MyBlazorApp.Core
+@using MyBlazorApp.Services
+@inject CalculatorStateService State
 
 <PageTitle>Calculator</PageTitle>
 
@@ -6,79 +9,25 @@
     <h1>Calculator</h1>
 
     <div class="input-row">
-        <input type="number" class="number-input" @bind="FirstNumber" @bind:event="oninput" placeholder="First number" />
-        <input type="number" class="number-input" @bind="SecondNumber" @bind:event="oninput" placeholder="Second number" />
+        <input type="number" class="number-input" @bind="State.FirstNumber" @bind:event="oninput" placeholder="First number" />
+        <input type="number" class="number-input" @bind="State.SecondNumber" @bind:event="oninput" placeholder="Second number" />
     </div>
 
     <div class="operation-row">
-        <button class="op-button @(SelectedOperation == Operation.Add ? "selected" : "")" @onclick="() => SelectOperation(Operation.Add)">+</button>
-        <button class="op-button @(SelectedOperation == Operation.Subtract ? "selected" : "")" @onclick="() => SelectOperation(Operation.Subtract)">-</button>
-        <button class="op-button @(SelectedOperation == Operation.Multiply ? "selected" : "")" @onclick="() => SelectOperation(Operation.Multiply)">*</button>
-        <button class="op-button @(SelectedOperation == Operation.Divide ? "selected" : "")" @onclick="() => SelectOperation(Operation.Divide)">/</button>
+        <button class="op-button @(State.SelectedOperation == CalculatorOperation.Add ? "selected" : "")" @onclick="() => State.SelectOperation(CalculatorOperation.Add)">+</button>
+        <button class="op-button @(State.SelectedOperation == CalculatorOperation.Subtract ? "selected" : "")" @onclick="() => State.SelectOperation(CalculatorOperation.Subtract)">-</button>
+        <button class="op-button @(State.SelectedOperation == CalculatorOperation.Multiply ? "selected" : "")" @onclick="() => State.SelectOperation(CalculatorOperation.Multiply)">*</button>
+        <button class="op-button @(State.SelectedOperation == CalculatorOperation.Divide ? "selected" : "")" @onclick="() => State.SelectOperation(CalculatorOperation.Divide)">/</button>
     </div>
 
-    <button class="equals-button" @onclick="Calculate">=</button>
+    <button class="equals-button" @onclick="State.Calculate">=</button>
 
-    @if (Result is not null)
+    @if (State.Result is not null)
     {
-        <div class="result">Result: @Result</div>
+        <div class="result">Result: @State.Result</div>
     }
-    else if (ErrorMessage is not null)
+    else if (State.ErrorMessage is not null)
     {
-        <div class="error">@ErrorMessage</div>
+        <div class="error">@State.ErrorMessage</div>
     }
 </div>
-
-@code {
-    private enum Operation { None, Add, Subtract, Multiply, Divide }
-
-    private double FirstNumber;
-    private double SecondNumber;
-    private Operation SelectedOperation;
-    private double? Result;
-    private string? ErrorMessage;
-
-    private void SelectOperation(Operation operation)
-    {
-        SelectedOperation = operation;
-        Result = null;
-        ErrorMessage = null;
-    }
-
-    private void Calculate()
-    {
-        switch (SelectedOperation)
-        {
-            case Operation.Add:
-                ShowResult(FirstNumber + SecondNumber);
-                break;
-            case Operation.Subtract:
-                ShowResult(FirstNumber - SecondNumber);
-                break;
-            case Operation.Multiply:
-                ShowResult(FirstNumber * SecondNumber);
-                break;
-            case Operation.Divide:
-                if (SecondNumber == 0)
-                {
-                    Result = null;
-                    ErrorMessage = "Cannot divide by zero.";
-                }
-                else
-                {
-                    ShowResult(FirstNumber / SecondNumber);
-                }
-                break;
-            default:
-                Result = null;
-                ErrorMessage = "Please choose an operation.";
-                break;
-        }
-    }
-
-    private void ShowResult(double value)
-    {
-        Result = value;
-        ErrorMessage = null;
-    }
-}

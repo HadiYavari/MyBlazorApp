@@ -1,10 +1,15 @@
 using MyBlazorApp.Components;
+using MyBlazorApp.Core;
+using MyBlazorApp.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
+
+builder.Services.AddSingleton<ICalculatorEngine, CalculatorEngine>();
+builder.Services.AddScoped<CalculatorStateService>();
 
 var app = builder.Build();
 
